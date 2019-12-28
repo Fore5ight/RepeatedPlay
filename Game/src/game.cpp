@@ -58,6 +58,7 @@ Payoff::Payoff()
 
 Payoff::Payoff(Player *players, double *payoffTable)
 {
+    this->players = players;
     int dim = players->getPlayerNum();
     tableIndex = new int[dim];
     this->payoffTable = payoffTable;
@@ -112,6 +113,7 @@ double Payoff::getPayoffValue(int *index)
 
 Strategy::Strategy()
 {
+    players = new Player();
     int playerNum = players->getPlayerNum();
     StrategyName *strategyTable = new StrategyName[playerNum];
     playerStrategyFunc = new strategyFunc[playerNum];
@@ -130,6 +132,7 @@ Strategy::Strategy()
 
 Strategy::Strategy(Player *players, StrategyName *strategyTable)
 {
+    this->players = players;
     int playerNum = players->getPlayerNum();
     playerStrategyFunc = new strategyFunc[playerNum];
     isDefaultTable = false;

@@ -28,13 +28,5 @@ int main()
         }
         std::cout << "-------------------" << std::endl;
     }
-
-    // int (*pf[10])(int, int);
-    int l = 10;
-    typedef int *(*pf)(int);
-    pf *p = new pf[100];
-
-    // int (Strategy::*p)(int) = &Strategy::stay;
-
     return 0;
 }
