@@ -14,6 +14,7 @@ public:
     Player(int playerNum, int *moveNum);
     virtual ~Player();
 
+    int getPlayerNum();
     void setmoveNum(int *moveNum);
     int *getmoveNum();
 };
@@ -22,7 +23,7 @@ public:
 class Payoff
 {
 private:
-    int dim;
+    Player *players;
     double *payoffTable; //支付表指针
 
     int *tableIndex; //表索引
@@ -30,8 +31,8 @@ private:
 
     bool isDefaultTable; //是否采用默认支付表
 public:
-    Payoff(int dim = 2);
-    Payoff(int dim, int *dimSize, double *payoffTable);
+    Payoff();
+    Payoff(Player *players, double *payoffTable);
     virtual ~Payoff();
 
     //从外部设置支付表，输入表数组指针
@@ -48,7 +49,7 @@ public:
 class Strategy
 {
 private:
-    int playerNum;
+    Player *players;
 
     typedef int (Strategy::*strategyFunc)(int);
     strategyFunc *playerStrategyFunc; //各个参与人选择的策略
@@ -74,12 +75,13 @@ public:
         TFT
     };
 
-    Strategy(int playerNum = 2);
-    Strategy(int playerNum, int *moveTable, StrategyName *strategyTable);
+    Strategy();
+    Strategy(Player *players, StrategyName *strategyTable);
     virtual ~Strategy();
 
+    void setMoveTable(int *moveTable);
     void setStrategy(StrategyName *strategyTable);
-    void runStrategy();
+    strategyFunc getStrategy(int playerIndex);
 };
 
 //博弈基本类
@@ -91,6 +93,8 @@ private:
     Strategy *strategies;
 
     bool isDefault;
+
+    int *moveTableTemp;
 
 public:
     Game();

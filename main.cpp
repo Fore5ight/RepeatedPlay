@@ -11,8 +11,9 @@ int main()
     int dim = 2;
     int dimSize[2] = {2, 4};
     double payoffTable[16] = {1, 5, 2, 7, 8, 6, 1, 4, 2, 8, 7, 5, 3, 10, 1, 2};
-    Payoff a(dim, dimSize, payoffTable);
-    Strategy b;
+    Player *players = new Player(2, dimSize);
+    Payoff a(players, payoffTable);
+    Strategy *b = new Strategy();
 
     for (int u = 0; u < dim; u++)
     {
@@ -32,8 +33,8 @@ int main()
     int l = 10;
     typedef int *(*pf)(int);
     pf *p = new pf[100];
-    // int (**pf)(int) = new (int (*[l])(int));
-    // int **p = new int *[10];
+
+    // int (Strategy::*p)(int) = &Strategy::stay;
 
     return 0;
 }
