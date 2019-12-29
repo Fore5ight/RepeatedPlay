@@ -39,9 +39,9 @@ int *Player::getmoveNum()
     return moveNum;
 }
 
-Payoff::Payoff()
+Payoff::Payoff(Player *players)
 {
-    players = new Player();
+    this->players = players;
     int dim = players->getPlayerNum();
     tableIndex = new int[dim];
     int temp = 1;
@@ -79,7 +79,6 @@ Payoff::~Payoff()
     if (isDefaultTable == true)
         delete[] payoffTable;
     delete[] tableIndex;
-    delete players;
 }
 
 void Payoff::setPayoffTable(double *payoffTable)
@@ -111,9 +110,9 @@ double Payoff::getPayoffValue(int *index)
     return payoffTable[temp];
 }
 
-Strategy::Strategy()
+Strategy::Strategy(Player *players)
 {
-    players = new Player();
+    this->players = players;
     int playerNum = players->getPlayerNum();
     StrategyName *strategyTable = new StrategyName[playerNum];
     playerStrategyFunc = new strategyFunc[playerNum];
@@ -135,6 +134,8 @@ Strategy::Strategy(Player *players, StrategyName *strategyTable)
     this->players = players;
     int playerNum = players->getPlayerNum();
     playerStrategyFunc = new strategyFunc[playerNum];
+    moveTable = new int[playerNum];
+
     isDefaultTable = false;
     for (int i = 0; i < playerNum; i++)
         moveTable[i] = 1;
@@ -144,9 +145,7 @@ Strategy::Strategy(Player *players, StrategyName *strategyTable)
 Strategy::~Strategy()
 {
     delete[] playerStrategyFunc;
-    if (isDefaultTable == true)
-        delete[] moveTable;
-    delete players;
+    delete[] moveTable;
 }
 
 int Strategy::stay(int playerIndex)
@@ -184,6 +183,12 @@ int Strategy::tft(int playerIndex)
 void Strategy::setMoveTable(int *moveTable)
 {
     this->moveTable = moveTable;
+    isDefaultTable = false;
+}
+
+int *Strategy::getMoveTable()
+{
+    return this->moveTable;
 }
 
 void Strategy::setStrategy(StrategyName *strategyTable)
@@ -221,44 +226,62 @@ strategyFunc Strategy::getStrategy(int playerIndex)
 Game::Game()
 {
     players = new Player();
-    payoffs = new Payoff();
-    strategies = new Strategy();
+    payoffs = new Payoff(players);
+    strategies = new Strategy(players);
     isDefault = true;
-    moveTableTemp = new int[players->getPlayerNum()];
+
+    payoffIndex = new int[players->getPlayerNum() + 1];
+    finalPayoff = new double[players->getPlayerNum()];
+    memset(finalPayoff, 0, (players->getPlayerNum()) * sizeof(double));
 }
 
-Game::Game(Player *players, Payoff *payoffs, Strategy *strategiesstrategies)
+Game::Game(Player *players, Payoff *payoffs, Strategy *strategies)
 {
     this->players = players;
     this->payoffs = payoffs;
     this->strategies = strategies;
     isDefault = false;
 
-    moveTableTemp = new int[players->getPlayerNum()];
+    payoffIndex = new int[players->getPlayerNum() + 1];
+    memcpy(payoffIndex + 1, strategies->getMoveTable(), (players->getPlayerNum()) * sizeof(int));
+    finalPayoff = new double[players->getPlayerNum()];
+    memset(finalPayoff, 0, (players->getPlayerNum()) * sizeof(double));
 }
 
 Game::~Game()
 {
     if (isDefault == true)
     {
-        delete players;
         delete payoffs;
         delete strategies;
+        delete players;
     }
-    delete[] moveTableTemp;
+    delete[] payoffIndex;
+    delete[] finalPayoff;
 }
 
 void Game::repeatedPlay(int times)
 {
     strategyFunc pf;
+    int playerNum = players->getPlayerNum();
     for (int i = 0; i < times; i++)
     {
-        for (int j = 0; j < players->getPlayerNum(); j++)
+        for (int k = 0; k < playerNum; k++)
+        {
+            payoffIndex[0] = k;
+            finalPayoff[k] += payoffs->getPayoffValue(payoffIndex);
+        }
+        for (int j = 0; j < playerNum; j++)
         {
             pf = strategies->getStrategy(j);
-            moveTableTemp[j] = (strategies->*pf)(j);
+            payoffIndex[j + 1] = (strategies->*pf)(j);
         }
 
-        ;
+        memcpy(strategies->getMoveTable(), payoffIndex + 1, playerNum * sizeof(int));
     }
+}
+
+double *Game::getFinalPayoff()
+{
+    return finalPayoff;
 }

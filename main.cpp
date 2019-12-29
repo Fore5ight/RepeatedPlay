@@ -1,32 +1,33 @@
 #include <iostream>
 #include "game.h"
 
-int fun(int a, int b)
-{
-    return a + b;
-}
-
 int main()
 {
-    int dim = 2;
-    int dimSize[2] = {2, 4};
-    double payoffTable[16] = {1, 5, 2, 7, 8, 6, 1, 4, 2, 8, 7, 5, 3, 10, 1, 2};
-    Player *players = new Player(2, dimSize);
-    Payoff a(players, payoffTable);
-    Strategy *b = new Strategy();
+    int playerNum = 2;
+    int moveNum[2] = {2, 2};
+    double payoffTable[8] = {1, 5, 0, 3, 1, 0, 5, 3};
+    StrategyName strategyTable[2] = {STAY, TFT};
+    int moveTable[2] = {1, 0};
 
-    for (int u = 0; u < dim; u++)
+    Player *players = new Player(playerNum, moveNum);
+    Payoff *payoffs = new Payoff(players, payoffTable);
+    Strategy *strategies = new Strategy(players, strategyTable);
+    strategies->setMoveTable(moveTable);
+
+    Game *game = new Game(players, payoffs, strategies);
+
+    int times = 200;
+    game->repeatedPlay(times);
+
+    for (int i = 0; i < playerNum; i++)
     {
-        for (int i = 0; i < dimSize[0]; i++)
-        {
-            for (int j = 0; j < dimSize[1]; j++)
-            {
-                int index[3] = {u, i, j};
-                std::cout << a.getPayoffValue(index) << "       ";
-            }
-            std::cout << std::endl;
-        }
-        std::cout << "-------------------" << std::endl;
+        std::cout << game->getFinalPayoff()[i] << std::endl;
     }
+
+    delete game;
+    delete strategies;
+    delete payoffs;
+    delete players;
+
     return 0;
 }

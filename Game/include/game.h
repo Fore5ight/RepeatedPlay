@@ -31,7 +31,7 @@ private:
 
     bool isDefaultTable; //是否采用默认支付表
 public:
-    Payoff();
+    Payoff(Player *players);
     Payoff(Player *players, double *payoffTable);
     virtual ~Payoff();
 
@@ -46,6 +46,13 @@ public:
 };
 
 //策略
+enum StrategyName
+{
+    STAY = 0,
+    GRIM,
+    TFT
+};
+
 class Strategy
 {
 private:
@@ -68,18 +75,12 @@ private:
     int tft(int playerIndex);
 
 public:
-    enum StrategyName
-    {
-        STAY = 0,
-        GRIM,
-        TFT
-    };
-
-    Strategy();
+    Strategy(Player *players);
     Strategy(Player *players, StrategyName *strategyTable);
     virtual ~Strategy();
 
     void setMoveTable(int *moveTable);
+    int *getMoveTable();
     void setStrategy(StrategyName *strategyTable);
     strategyFunc getStrategy(int playerIndex);
 };
@@ -94,7 +95,8 @@ private:
 
     bool isDefault;
 
-    int *moveTableTemp;
+    int *payoffIndex;
+    double *finalPayoff;
 
 public:
     Game();
@@ -102,6 +104,7 @@ public:
     virtual ~Game();
 
     void repeatedPlay(int times);
+    double *getFinalPayoff();
 };
 
 #endif //GAME_H
