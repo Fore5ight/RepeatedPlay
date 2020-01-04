@@ -1,25 +1,24 @@
 #ifndef GAME_H
 #define GAME_H
 
-//参与人
+//参与人基本类
 class Player
 {
 private:
-    int playerNum;       //参与人总数
-    int *moveNum;        //每个参与人的行动数
-    bool isDefaultTable; //是否不采用外部输入的行动表，true为不采用
+    int playerNum; //参与人总数
+    int *moveNum;  //每个参与人的行动数
 
 public:
-    Player(int playerNum = 2);
-    Player(int playerNum, int *moveNum);
+    Player(int playerNum = 2);           //构造函数，初始化参与人数量，默认为2个参与人，每个人的行动数为2
+    Player(int playerNum, int *moveNum); //构造函数，初始化参与人数量，同时可设置每个参与人的行动数量
     virtual ~Player();
 
-    int getPlayerNum();
-    void setmoveNum(int *moveNum);
-    int *getmoveNum();
+    int getPlayerNum();            //获取参与人数量
+    void setmoveNum(int *moveNum); //设置参与人行动数
+    int *getmoveNum();             //获取参与人行动数
 };
 
-//支付
+//支付基本类
 class Payoff
 {
 private:
@@ -29,7 +28,6 @@ private:
     int *tableIndex; //表索引
     int tableSize;   //支付表大小
 
-    bool isDefaultTable; //是否采用默认支付表
 public:
     Payoff(Player *players);
     Payoff(Player *players, double *payoffTable);
@@ -53,6 +51,7 @@ enum StrategyName
     TFT
 };
 
+//策略基本类
 class Strategy
 {
 private:
@@ -63,26 +62,19 @@ private:
 
     int *moveTable; //各个参与人当前的行动
 
-    bool isDefaultTable; //是否采用默认行动表
-
-    //保持策略
-    int stay(int playerIndex);
-
-    //冷酷策略
-    int grim(int playerIndex);
-
-    //以牙还牙策略
-    int tft(int playerIndex);
+    int stay(int playerIndex); //保持策略
+    int grim(int playerIndex); //冷酷策略
+    int tft(int playerIndex);  //以牙还牙策略
 
 public:
     Strategy(Player *players);
     Strategy(Player *players, StrategyName *strategyTable);
     virtual ~Strategy();
 
-    void setMoveTable(int *moveTable);
-    int *getMoveTable();
-    void setStrategy(StrategyName *strategyTable);
-    strategyFunc getStrategy(int playerIndex);
+    void setMoveTable(int *moveTable);             //设置行动表
+    int *getMoveTable();                           //获取行动表指针
+    void setStrategy(StrategyName *strategyTable); //设置每个参与人的行动策略
+    strategyFunc getStrategy(int playerIndex);     //获取指定参与人的行动策略函数指针
 };
 
 //博弈基本类
@@ -103,8 +95,8 @@ public:
     Game(Player *players, Payoff *payoffs, Strategy *strategies);
     virtual ~Game();
 
-    void repeatedPlay(int times);
-    double *getFinalPayoff();
+    void repeatedPlay(int times, int *initMove); //重复博弈函数，设定博弈次数times与初始行动
+    double *getFinalPayoff();                    //获取最终总支付
 };
 
 #endif //GAME_H
