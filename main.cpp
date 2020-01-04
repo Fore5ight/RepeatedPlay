@@ -1,6 +1,31 @@
 #include <iostream>
 #include "game.h"
 
+//用于将策略名称转换为可打印输出的字符串
+std::string nameString(StrategyName strategyName)
+{
+    std::string name;
+    switch (strategyName)
+    {
+    case STAY:
+        name = "STAY";
+        break;
+
+    case GRIM:
+        name = "GRIM";
+        break;
+
+    case TFT:
+        name = "TFT";
+        break;
+
+    default:
+        name = "ERROR";
+        break;
+    }
+    return name;
+}
+
 int main()
 {
     //初始化参与人类
@@ -19,23 +44,21 @@ int main()
     //初始化博弈类
     Game *game = new Game(players, payoffs, strategies);
 
-    const int times = 200;                                                       //重复博弈次数
-    StrategyName strategyTable[3][2] = {{STAY, GRIM}, {STAY, TFT}, {GRIM, TFT}}; //3种策略两两之间比较
-    int moveTable[2] = {0, 1};                                                   //0表示背叛，1表示合作。2名参与人的初始行动
+    const int times = 200;                                                                                                  //重复博弈次数
+    const int strNum = 6;                                                                                                   //实验策略种类数
+    StrategyName strategyTable[strNum][2] = {{STAY, GRIM}, {STAY, TFT}, {STAY, TFT}, {GRIM, TFT}, {GRIM, TFT}, {TFT, TFT}}; //3种策略两两之间比较
+    int moveTable[strNum][2] = {{0, 1}, {0, 1}, {0, 0}, {1, 1}, {1, 0}, {1, 0}};                                            //0表示背叛，1表示合作。2名参与人的初始行动
 
     //开始重复博弈
-    for (int str = 0; str < 3; str++)
+    for (int str = 0; str < strNum; str++)
     {
-        if (str == 2)
-            moveTable[0] = 1;
-        else
-            moveTable[0] = 0;
         strategies->setStrategy(strategyTable[str]); //设置策略
-        game->repeatedPlay(times, moveTable);        //设置博弈次数与初始行动
-        
+        game->repeatedPlay(times, moveTable[str]);   //设置博弈次数与初始行动，开始重复博弈
+
         for (int no = 0; no < playerNum; no++)
         {
-            std::cout << strategyTable[str][no] << ": " << game->getFinalPayoff()[no] << " ";
+            //打印博弈结果
+            std::cout << nameString(strategyTable[str][no]) << "_" << moveTable[str][no] << ": " << game->getFinalPayoff()[no] << " ";
         }
         std::cout << std::endl;
     }
