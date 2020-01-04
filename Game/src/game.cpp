@@ -4,23 +4,21 @@
 Player::Player(int playerNum)
 {
     this->playerNum = playerNum;
-    moveNum = new int[playerNum];
+    this->moveNum = new int[playerNum];
     for (int i = 0; i < playerNum; i++)
-        moveNum[i] = 2;
-    isDefaultTable = true;
+        this->moveNum[i] = 2;
 }
 
 Player::Player(int playerNum, int *moveNum)
 {
     this->playerNum = playerNum;
-    this->moveNum = moveNum;
-    isDefaultTable = false;
+    this->moveNum = new int[playerNum];
+    memcpy(this->moveNum, moveNum, playerNum * sizeof(int));
 }
 
 Player::~Player()
 {
-    if (isDefaultTable == true)
-        delete[] moveNum;
+    delete[] moveNum;
 }
 
 int Player::getPlayerNum()
@@ -30,8 +28,7 @@ int Player::getPlayerNum()
 
 void Player::setmoveNum(int *moveNum)
 {
-    this->moveNum = moveNum;
-    isDefaultTable = false;
+    memcpy(this->moveNum, moveNum, playerNum * sizeof(int));
 }
 
 int *Player::getmoveNum()
@@ -53,7 +50,6 @@ Payoff::Payoff(Player *players)
     tableSize = dim * temp;
     payoffTable = new double[tableSize];
     memset(payoffTable, 0, tableSize * sizeof(double));
-    isDefaultTable = true;
 }
 
 Payoff::Payoff(Player *players, double *payoffTable)
@@ -61,8 +57,6 @@ Payoff::Payoff(Player *players, double *payoffTable)
     this->players = players;
     int dim = players->getPlayerNum();
     tableIndex = new int[dim];
-    this->payoffTable = payoffTable;
-    isDefaultTable = false;
 
     int *dimSize = players->getmoveNum();
     int temp = 1;
@@ -72,21 +66,19 @@ Payoff::Payoff(Player *players, double *payoffTable)
         tableIndex[i] = temp;
     }
     tableSize = dim * temp;
+    this->payoffTable = new double[tableSize];
+    memcpy(this->payoffTable, payoffTable, tableSize * sizeof(double));
 }
 
 Payoff::~Payoff()
 {
-    if (isDefaultTable == true)
-        delete[] payoffTable;
+    delete[] payoffTable;
     delete[] tableIndex;
 }
 
 void Payoff::setPayoffTable(double *payoffTable)
 {
-    if (isDefaultTable == true)
-        delete[] this->payoffTable;
-    this->payoffTable = payoffTable;
-    isDefaultTable = false;
+    memcpy(this->payoffTable, payoffTable, tableSize * sizeof(double));
 }
 
 void Payoff::setPayoffValue(double payoff, int *index)
@@ -117,7 +109,6 @@ Strategy::Strategy(Player *players)
     StrategyName *strategyTable = new StrategyName[playerNum];
     playerStrategyFunc = new strategyFunc[playerNum];
     moveTable = new int[playerNum];
-    isDefaultTable = true;
 
     for (int i = 0; i < playerNum; i++)
     {
@@ -136,7 +127,6 @@ Strategy::Strategy(Player *players, StrategyName *strategyTable)
     playerStrategyFunc = new strategyFunc[playerNum];
     moveTable = new int[playerNum];
 
-    isDefaultTable = false;
     for (int i = 0; i < playerNum; i++)
         moveTable[i] = 1;
     setStrategy(strategyTable);
@@ -182,8 +172,7 @@ int Strategy::tft(int playerIndex)
 
 void Strategy::setMoveTable(int *moveTable)
 {
-    this->moveTable = moveTable;
-    isDefaultTable = false;
+    memcpy(this->moveTable, moveTable, (players->getPlayerNum()) * sizeof(int));
 }
 
 int *Strategy::getMoveTable()
@@ -243,9 +232,8 @@ Game::Game(Player *players, Payoff *payoffs, Strategy *strategies)
     isDefault = false;
 
     payoffIndex = new int[players->getPlayerNum() + 1];
-    memcpy(payoffIndex + 1, strategies->getMoveTable(), (players->getPlayerNum()) * sizeof(int));
+    // memcpy(payoffIndex + 1, strategies->getMoveTable(), (players->getPlayerNum()) * sizeof(int));
     finalPayoff = new double[players->getPlayerNum()];
-    memset(finalPayoff, 0, (players->getPlayerNum()) * sizeof(double));
 }
 
 Game::~Game()
@@ -260,10 +248,13 @@ Game::~Game()
     delete[] finalPayoff;
 }
 
-void Game::repeatedPlay(int times)
+void Game::repeatedPlay(int times, int *initMove)
 {
     strategyFunc pf;
     int playerNum = players->getPlayerNum();
+    memcpy(strategies->getMoveTable(), initMove, playerNum * sizeof(int));
+    memcpy(payoffIndex + 1, initMove, playerNum * sizeof(int));
+    memset(finalPayoff, 0, (players->getPlayerNum()) * sizeof(double));
     for (int i = 0; i < times; i++)
     {
         for (int k = 0; k < playerNum; k++)

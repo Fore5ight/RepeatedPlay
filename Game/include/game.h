@@ -1,25 +1,24 @@
 #ifndef GAME_H
 #define GAME_H
 
-//参与人
+//参与人基本类
 class Player
 {
 private:
     int playerNum;       //参与人总数
     int *moveNum;        //每个参与人的行动数
-    bool isDefaultTable; //是否不采用外部输入的行动表，true为不采用
 
 public:
-    Player(int playerNum = 2);
-    Player(int playerNum, int *moveNum);
+    Player(int playerNum = 2);           //构造函数，初始化参与人数量，默认为2个参与人，每个人的行动数为2
+    Player(int playerNum, int *moveNum); //构造函数，初始化参与人数量，同时可设置每个参与人的行动数量
     virtual ~Player();
 
-    int getPlayerNum();
-    void setmoveNum(int *moveNum);
-    int *getmoveNum();
+    int getPlayerNum();            //获取参与人数量
+    void setmoveNum(int *moveNum); //设置参与人行动数
+    int *getmoveNum();             //获取参与人行动数
 };
 
-//支付
+//支付基本类
 class Payoff
 {
 private:
@@ -29,7 +28,6 @@ private:
     int *tableIndex; //表索引
     int tableSize;   //支付表大小
 
-    bool isDefaultTable; //是否采用默认支付表
 public:
     Payoff(Player *players);
     Payoff(Player *players, double *payoffTable);
@@ -53,6 +51,7 @@ enum StrategyName
     TFT
 };
 
+//策略基本类
 class Strategy
 {
 private:
@@ -62,8 +61,6 @@ private:
     strategyFunc *playerStrategyFunc; //各个参与人选择的策略
 
     int *moveTable; //各个参与人当前的行动
-
-    bool isDefaultTable; //是否采用默认行动表
 
     //保持策略
     int stay(int playerIndex);
@@ -103,7 +100,7 @@ public:
     Game(Player *players, Payoff *payoffs, Strategy *strategies);
     virtual ~Game();
 
-    void repeatedPlay(int times);
+    void repeatedPlay(int times, int *initMove);
     double *getFinalPayoff();
 };
 
